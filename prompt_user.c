@@ -5,7 +5,7 @@
  */
 void prompt_user(void)
 {
+
 	printf("£ ");
 	fflush(stdout);
 }
-

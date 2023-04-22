@@ -11,43 +11,44 @@
  */
 int main(int argc, char *argv[])
 {
-	char  *input;		 /* unmodified input string entered by user */
-	char **input_tokens; /* input tokenized into arr of command & arguments */
-	char  *delim = " \t\r\n\f\v"; /* delimiter for the tokenization */
+	char   *input;	  /*unmodified input string entered by user */
+	char  **commands; /*array of commands created using ; as delimiter*/
+	char ***tokenized_commands; /*2d arr of commands tokenized by whitespace*/
+	shell_state_t shell_state = {0}; /*program-wide shell state variables*/
 
 	(void) argc;
-	(void) argv;
-
-	while (1)
+	initialize_shell(&shell_state, argv);
+	while (shell_state.is_alive)
 	{
 		/* prompt user to enter commands */
 		prompt_user();
 
 		/* get the user input & save num of chars read */
-		input = get_input();
+		input = get_input(&shell_state);
 
 		if (input == NULL) /* if empty input or error */
 			continue;	   /*restart loop*/
 
-		/* tokenize input into array of command & arguments */
-		input_tokens = tokenize(input, delim);
+		/* check if input has bad syntax */
+		if (has_bad_syntax(input, &shell_state))
+		{
+			free(input); /* free input memory */
+			continue;	 /* restart loop */
+		}
 
-		/* free memory pointed to by input & reset it to NULL */
-		free(input);
-		input = NULL;
+		/* tokenize input into array of commands delimited by ";" */
+		commands = tokenize_input(input);
 
-		/* execute the command */
-		execute_command(input_tokens);
+		/* further tokenize the commands, delimited by whitespaces */
+		tokenized_commands			   = tokenize_commands(commands);
+		shell_state.tokenized_commands = tokenized_commands;
 
-		/* free the memory allocated for tokens */
-		free_array(input_tokens);
+		/* execute each tokenized_command in the array sequentially */
+		execute_commands(tokenized_commands, &shell_state);
+
+		free_2d_array(tokenized_commands);
+
+		errno = shell_state.startup_errno; /*reset errno*/
 	}
-
-	free(input);
-
-	/* handle potential errors */
-	if (errno > 0) /* if errno is not 0 (eof interrrupt)*/
-		perror("Input Error");
-
-	return (0);
+	return (shell_state.exit_status);
 }

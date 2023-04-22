@@ -3,15 +3,35 @@
 /**
  * free_array - Frees the memory used by an array of strings
  *
- * @str_arr: The array of strings to free
+ * @arr: The array of strings to free
  */
-void free_array(char **str_arr)
+void free_array(char **arr)
 {
 	int i;
 
-	for (i = 0; str_arr[i] != NULL; i++)
+	for (i = 0; arr[i] != NULL; i++)
 	{
-		free(str_arr[i]);
+		free(arr[i]);
 	}
-	free(str_arr);
+	free(arr);
+}
+
+/**
+ * free_2d_array - Frees the memory used by a 2D array of strings
+ *
+ * @arr: The 2D array of strings to free
+ */
+void free_2d_array(char ***arr)
+{
+	int i, j;
+
+	for (i = 0; arr[i] != NULL; i++)
+	{
+		for (j = 0; arr[i][j] != NULL; j++)
+		{
+			free(arr[i][j]);
+		}
+		free(arr[i]);
+	}
+	free(arr);
 }
