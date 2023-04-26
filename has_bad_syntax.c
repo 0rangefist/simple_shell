@@ -1,13 +1,36 @@
 #include "shell.h"
 
 /**
- * detect_bad_semicolons - Detects invalid semicolon syntax in a string.
+ * remove_whitespace - Removes whitespace from a given string in place
+ * @str: Pointer to the string to be trimmed
+ */
+void remove_whitespace(char *str)
+{
+	int i; /*index of full original string with whitespaces*/
+	int j; /*index of modified shorter string without whitespaces*/
+
+	/* copy non-whitespace characters to the start of the string */
+	for (i = 0, j = 0; i < _strlen(str); i++)
+	{
+		if (str[i] != ' ' && str[i] != '\t' && str[i] != '\n')
+		{
+			str[j] = str[i];
+			j++;
+		}
+	}
+
+	/* null terminate trimmed string*/
+	str[j] = '\0';
+}
+
+/**
+ * count_bad_semicolons - Detects invalid semicolon syntax in a string.
  * @str: The input string to analyze.
  *
  * Return: 0 if valid, 1 if single semicolon error, 2 if multiple semicolon
  * error.
  */
-int detect_bad_semicolons(char *str)
+int count_bad_semicolons(char *str)
 {
 	int i;
 	int semicolon_count = 0;
@@ -35,8 +58,43 @@ int detect_bad_semicolons(char *str)
 
 	if (semicolon_count == 2) /* invalid multiple semicolons */
 		return (2);
+
 	else /* valid single semicolon or none */
 		return (0);
+}
+
+/**
+ * print_semicolon_error - Prints a appropriate error message for
+ * either single or multiple bad semicolon count
+ *
+ * @bad_semicolon_count: The number of semicolons detected in the token.
+ * @shell_state: Struct of current shell state variables.
+ */
+void print_semicolon_error(int bad_semicolon_count, shell_state_t *shell_state)
+{
+	char semicolons[5]; /* semicolon string for error message */
+
+	if (bad_semicolon_count == 1)
+	{
+		semicolons[0] = '"';
+		semicolons[1] = ';';
+		semicolons[2] = '"';
+		semicolons[3] = '\0';
+	}
+	else /* bad_semicolon_count == 2 */
+	{
+		semicolons[0] = '"';
+		semicolons[1] = ';';
+		semicolons[2] = ';';
+		semicolons[3] = '"';
+		semicolons[4] = '\0';
+	}
+
+	/* print error for either single or multiple bad semicolon */
+	print_shell_error(shell_state);
+	print_error("Syntax error: ");
+	print_error(semicolons);
+	print_error(" unexpected\n");
 }
 
 /**
@@ -47,44 +105,25 @@ int detect_bad_semicolons(char *str)
  */
 int has_bad_syntax(char *input, shell_state_t *shell_state)
 {
-	char  *delim			 = " \t\r\n\f\v"; /* whitespace delimiter */
-	char **input_tokens		 = NULL;		  /* tokenized input */
-	int	   num_of_semicolons = 0; /*number of bad semicolons detected*/
-	char   semicolons[5];		  /*semicolon string for error message*/
-	int	   i;
+	int	  bad_semicolon_count; /*num of bad syntax semicolons in string*/
 	char *input_cpy = _strdup(input);
 
-	input_tokens = tokenize(input_cpy, delim);
-	for (i = 0; input_tokens[i] != NULL; i++)
-	{
-		num_of_semicolons = detect_bad_semicolons(input_tokens[i]);
-		if (num_of_semicolons == 1) /*single bad semicolon error*/
-		{
-			semicolons[0] = '"';
-			semicolons[1] = ';';
-			semicolons[2] = '"';
-			semicolons[3] = '\0';
-		}
-		if (num_of_semicolons == 2) /*multiple bad semicolon error*/
-		{
-			semicolons[0] = '"';
-			semicolons[1] = ';';
-			semicolons[2] = ';';
-			semicolons[3] = '"';
-			semicolons[4] = '\0';
-		}
-		if (num_of_semicolons > 0)
-		{ /* print error for either single or multiple bad semicolon*/
-			fprintf(stderr, "%s: ", shell_state->prog_name);
-			fprintf(stderr, "%d: ", shell_state->input_line_count);
-			fprintf(stderr, "Syntax error: ");
-			fprintf(stderr, "%s unexpected\n", semicolons);
-			free_array(input_tokens);
-			free(input_cpy);
-			return (1);
-		}
-	} /* no syntax error */
-	free_array(input_tokens);
+	/* trim input of all whitespace including inbetween words */
+	remove_whitespace(input_cpy);
+
+	/* get the count of bad semicolons - either 1 or 2 */
+	/* 1 for single and 2 for multiple bad semicolons */
+	bad_semicolon_count = count_bad_semicolons(input_cpy);
 	free(input_cpy);
+
+	/* if any bad semicolons are detected*/
+	if (bad_semicolon_count > 0)
+	{
+		/*print custom error depending on if single or multi semicolon*/
+		print_semicolon_error(bad_semicolon_count, shell_state);
+		return (1);
+	}
+
+	/* no syntax error */
 	return (0);
 }

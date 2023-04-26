@@ -2,6 +2,7 @@
 #define SHELL_H
 
 #include <errno.h>
+#include <fcntl.h>
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -10,7 +11,7 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
-/*#define BUFFER_SIZE 256*/
+#define BUFFER_SIZE 2048
 
 extern char **environ;
 
@@ -26,6 +27,12 @@ extern char **environ;
  * @tokenized_commands: 2d arr of commands tokenized by whitespace
  * @startup_errno: backup copy of errno at start of the shell program
  * @exit_status: 0 or positive number exit status of the shell program
+ * @is_interactive: boolean to determine if shell is interactive terminal
+ * @child_exit_status: exit status of last executed child process
+ * @environ: the program-wide environment
+ * @prev_dir: pevious directory visited
+ * @in_file_mode: boolean to know if input is from file instead of stdin
+ * @fildes: file descriptor for reading from a file when in file mode
  */
 
 struct shell_state
@@ -36,6 +43,12 @@ struct shell_state
 	char ***tokenized_commands;
 	int		startup_errno;
 	int		exit_status;
+	int		is_interactive;
+	int		child_exit_status;
+	char  **environ;
+	char	prev_dir[1024];
+	int		in_file_mode;
+	int		fildes;
 };
 
 /**
@@ -61,13 +74,18 @@ struct builtin
 typedef struct builtin builtin_t;
 
 /* main program functions */
-void	initialize_shell(shell_state_t *s, char *argv[]);
-void	prompt_user(void);
+void	initialize_shell(shell_state_t *s, int argc, char *argv[]);
+void	prompt_user(shell_state_t *s);
+int		read_line(int fd, char *input);
 char   *get_input(shell_state_t *s);
+void	ignore_comment(char *input);
 int		has_bad_syntax(char *input, shell_state_t *s);
-char  **tokenize_input(char *input);
+char  **split_into_commands(char *input);
 char ***tokenize_commands(char **commands);
+void	replace_variables(char ***tok_cmds, shell_state_t *s);
 void	execute_commands(char ***tok_cmds, shell_state_t *s);
+void	logically_sequence_command(char **cmd, shell_state_t *s);
+void	handle_command(char **cmd, shell_state_t *s);
 
 /* external shell command*/
 void execute_command(char **tok_cmd, shell_state_t *s);
@@ -83,11 +101,31 @@ void execute_alias(char **cmd, shell_state_t *s);
 
 /* string manipulation functions */
 char *_strdup(const char *str);
+int	  _strlen(char *str);
+char *_strncpy(char *dest, char *src, int n);
+char *_strcat(char *dest, char *src);
+int	  _strncmp(const char *str1, const char *str2, size_t n);
 int	  _strcmp(const char *s1, const char *s2);
+
+/* print functions */
+void print_output(char *str);
+void print_error(char *str);
+void print_shell_error(shell_state_t *shell_state);
 
 /* auxilliary functions */
 char **tokenize(char *str, char *delim);
 void   free_array(char **str_arr);
 void   free_2d_array(char ***arr);
+char  *int_to_string(int num);
+int	   get_array_size(char **array);
+
+/* environment functions */
+char  *_getenv(char *env_name, shell_state_t *s);
+int	   get_env_index(char *env_name, shell_state_t *s);
+void   delete_env_at_index(int index, shell_state_t *s);
+int	   add_env(char *name, char *value, shell_state_t *s);
+int	   environ_size(shell_state_t *s);
+char **copy_environment(char **environ);
+int	   add_env(char *name, char *value, shell_state_t *s);
 
 #endif /*SHELL_H*/

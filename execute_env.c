@@ -10,19 +10,21 @@
  */
 void execute_env(char **cmd, shell_state_t *shell_state)
 {
-	char **env = environ;
+	char **env = shell_state->environ;
 
 	if (*env == NULL)
 	{
-		fprintf(stderr, "%s: ", shell_state->prog_name);
-		fprintf(stderr, "%d: %s: ", shell_state->input_line_count, cmd[0]);
+		print_shell_error(shell_state);
+		print_error(cmd[0]);
+		print_error(": ");
 		perror("");
 	}
 	else
 	{
 		while (*env)
 		{
-			printf("%s\n", *env);
+			print_output(*env);
+			print_output("\n");
 			env++;
 		}
 	}

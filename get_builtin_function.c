@@ -12,10 +12,10 @@
 void (*get_builtin_function(char **cmd))(char **, shell_state_t *)
 {
 	builtin_t builtins[]
-		= {{"exit", execute_exit}, {"env", execute_env}, {NULL, NULL}};
-	/* {"setenv", execute_setenv}, */
-	/* {"unsetenv", execute_unsetenv}, */
-	/* {"cd", execute_cd}, */
+		= {{"exit", execute_exit},	   {"env", execute_env},
+		   {"setenv", execute_setenv}, {"unsetenv", execute_unsetenv},
+		   {"cd", execute_cd},		   {NULL, NULL}};
+
 	/* {"alias", execute_alias}, */
 
 	int i;
