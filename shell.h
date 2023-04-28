@@ -28,9 +28,7 @@ extern char **environ;
  * @startup_errno: backup copy of errno at start of the shell program
  * @exit_status: 0 or positive number exit status of the shell program
  * @is_interactive: boolean to determine if shell is interactive terminal
- * @child_exit_status: exit status of last executed child process
  * @environ: the program-wide environment
- * @prev_dir: pevious directory visited
  * @in_file_mode: boolean to know if input is from file instead of stdin
  * @fildes: file descriptor for reading from a file when in file mode
  */
@@ -44,9 +42,7 @@ struct shell_state
 	int		startup_errno;
 	int		exit_status;
 	int		is_interactive;
-	int		child_exit_status;
 	char  **environ;
-	char	prev_dir[1024];
 	int		in_file_mode;
 	int		fildes;
 };
@@ -118,6 +114,8 @@ void   free_array(char **str_arr);
 void   free_2d_array(char ***arr);
 char  *int_to_string(int num);
 int	   get_array_size(char **array);
+int	   is_whitespace_string(char *str);
+void   trim_lead_trail_spaces(char *str);
 
 /* environment functions */
 char  *_getenv(char *env_name, shell_state_t *s);

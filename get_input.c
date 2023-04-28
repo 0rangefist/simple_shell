@@ -1,5 +1,4 @@
 #include "shell.h"
-
 /**
  * get_input - reads input from standard input
  * @shell_state: Struct of current shell state variables
@@ -26,8 +25,9 @@ char *get_input(shell_state_t *shell_state)
 	/* if shell is non-interactive & no more chars to read from stdin */
 	if (!(shell_state->is_interactive) && chars_read == -1)
 		shell_state->is_alive = 0; /* kill the shell */
-	if (input != NULL && chars_read >= 1)
+	if (input != NULL && chars_read >= 1 && !is_whitespace_string(input))
 	{
+		trim_lead_trail_spaces(input);
 		return (input);
 	}
 	else /* if input == NULL || chars_read < 1  */
@@ -39,10 +39,9 @@ char *get_input(shell_state_t *shell_state)
 			print_output("\n"); /* newline needed if shell dies from EOF */
 			shell_state->is_alive = 0;
 		}
-		/* if errno is not 0, then we had an error */
 		/* err of ENOTTY is excluded so we don't see that error when */
 		/* stdin is not from a terminal device (non-interactive mode)*/
-		else if (chars_read == -1 && errno != ENOTTY)
+		else if (chars_read == -1 && errno != ENOTTY) /*errno !=0 is err*/
 			perror("Error");
 		/* return NULL for NULL/empty input or on error  */
 		return (NULL);

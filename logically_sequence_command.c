@@ -84,6 +84,9 @@ void split_command(char **command, int logic_op_index, char ***left_command,
 int has_logic_err(char **command, shell_state_t *shell_state)
 {
 	int last_index = get_array_size(command) - 1;
+
+	if (command[0] == NULL) /*null input*/
+		return (1);
 	/*if first element is || or &&, bad syntax*/
 	if (_strcmp(command[0], "||") == 0 || _strcmp(command[0], "&&") == 0)
 	{
@@ -131,7 +134,7 @@ void logically_sequence_command(char **command, shell_state_t *shell_state)
 	is_OR = (_strcmp(command[logic_op_index], "||") == 0) ? 1 : 0;
 	if (is_OR)
 	{ /* if left command succeeded, dont execute right command */
-		if (shell_state->child_exit_status == 0) /*last command succeeded*/
+		if (shell_state->exit_status == 0) /*last command succeeded*/
 		{
 			free(left_command);
 			free(right_command);
@@ -140,7 +143,7 @@ void logically_sequence_command(char **command, shell_state_t *shell_state)
 	}
 	else /*if it is &&*/
 	{	 /* if left command failed, dont execute right command */
-		if (shell_state->child_exit_status != 0) /*last command failed */
+		if (shell_state->exit_status != 0) /*last command failed */
 		{
 			free(left_command);
 			free(right_command);

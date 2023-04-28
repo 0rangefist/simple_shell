@@ -17,7 +17,7 @@ void replace_variable(char **tok, shell_state_t *shell_state)
 		else if ((*tok)[1] == '?')
 		{
 			/*save the last exit status returned by a child process */
-			env_value = int_to_string(shell_state->child_exit_status);
+			env_value = int_to_string(shell_state->exit_status);
 		}
 		else if ((*tok)[1] == '$')
 		{
@@ -31,13 +31,14 @@ void replace_variable(char **tok, shell_state_t *shell_state)
 			env_value = _strdup(_getenv(env_name, shell_state));
 		}
 
-		/* replace the variable with value if it's found */
-		if (env_value != NULL)
+		/* replace the variable with "" if not found */
+		if (env_value == NULL)
 		{
-			free(*tok);
-			*tok = malloc(_strlen(env_value) + 1);
-			_strncpy(*tok, env_value, _strlen(env_value) + 1);
+			env_value = _strdup("");
 		}
+		free(*tok);
+		*tok = malloc(_strlen(env_value) + 1);
+		_strncpy(*tok, env_value, _strlen(env_value) + 1);
 		free(env_value);
 	}
 }

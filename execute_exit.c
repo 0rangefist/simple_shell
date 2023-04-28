@@ -82,7 +82,7 @@ void execute_exit(char **cmd, shell_state_t *shell_state)
 
 	if (cmd[1] == NULL) /* if 2nd argument is absent*/
 	{
-		shell_state->is_alive = 0;
+		shell_state->is_alive = 0;/*kill shell*/
 		return;
 	}
 	else /*else if 2nd argument is present*/
@@ -104,6 +104,7 @@ void execute_exit(char **cmd, shell_state_t *shell_state)
 			print_error("Illegal number: ");
 			print_error(cmd[1]);
 			print_error("\n");
+			shell_state->exit_status = 2; /*usage param error*/
 			return;
 		}
 	}

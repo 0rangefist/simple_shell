@@ -22,6 +22,26 @@ char *construct_full_path(char *path, char *file)
 }
 
 /**
+ * is_a_path - Check if a command is a path
+ * @command: The command to check
+ *
+ * Return: 1 if the command is a path, 0 otherwise
+ */
+int is_a_path(char *command)
+{
+	int i;
+
+	for (i = 0; command[i] != '\0'; i++)
+	{
+		if (command[i] == '/')
+		{
+			return (1);
+		}
+	}
+	return (0);
+}
+
+/**
  * get_path_to_command - gets the full path to a command
  * @command: a pointer to a string representing the command
  * @shell_state: current program-wide shell state variables
@@ -35,7 +55,7 @@ char *get_path_to_command(char *command, shell_state_t *shell_state)
 	char **path_arr;
 	int	   index;
 
-	if (command[0] == '/') /*check if command is an absolute path */
+	if (is_a_path(command)) /*check if command is a path */
 	{
 		full_path = _strdup(command);
 		if (access(full_path, X_OK) == 0) /*file exists & executable*/
@@ -44,8 +64,9 @@ char *get_path_to_command(char *command, shell_state_t *shell_state)
 		return (NULL);	 /* file not found or isn't executable */
 	}
 
-	/* if command is not an absolute path */
-	path_env_var = _strdup(_getenv("PATH", shell_state)); /*search env for PATH*/
+	/* if command is not a path, check for it in PATH env */
+	path_env_var
+		= _strdup(_getenv("PATH", shell_state)); /*search env for PATH*/
 	if (path_env_var == NULL) /* failed to find the PATH env variable */
 		return (NULL);
 
@@ -126,6 +147,7 @@ void execute_command(char **input_tokens, shell_state_t *shell_state)
 		print_error(input_tokens[0]);
 		print_error(": ");
 		print_error("not found\n");
+		shell_state->exit_status = 127; /*command not found status*/
 		return;
 	}
 
@@ -145,5 +167,5 @@ void execute_command(char **input_tokens, shell_state_t *shell_state)
 	wait(&status); /* process is over & the status is stored */
 	free(path_to_command);
 	if (WIFEXITED(status)) /*save the child process exit status*/
-		shell_state->child_exit_status = WEXITSTATUS(status);
+		shell_state->exit_status = WEXITSTATUS(status);
 }
