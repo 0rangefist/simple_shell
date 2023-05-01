@@ -33,25 +33,26 @@ void update_pwd(shell_state_t *shell_state, int should_print)
  */
 void execute_cd(char **cmd, shell_state_t *shell_state)
 {
-	char *pwd;
-	int	  PRINT		 = 1;
-	int	  DONT_PRINT = 0;
+	char pwd[1024];
+	int	 PRINT = 1, DONT_PRINT = 0;
 
 	if (cmd[1] == NULL) /* No argument, change to home dir */
 	{					/* save current directory as prev_dir */
-		pwd = _getenv("PWD", shell_state);
+		getcwd(pwd, 1024);
 		add_env("OLDPWD", pwd, shell_state);
 		/* change the directory*/
-		chdir(_getenv("HOME", shell_state));
+		if (get_env_index("HOME", shell_state) != -1) /*if HOME in environ*/
+			chdir(_getenv("HOME", shell_state));
 		/*update PWD*/
 		update_pwd(shell_state, DONT_PRINT);
 	}
 	else if (_strcmp(cmd[1], "-") == 0)
 	{
 		/* save current dir backup */
-		pwd = _getenv("PWD", shell_state);
+		getcwd(pwd, 1024);
 		/* change the directory*/
-		chdir(_getenv("OLDPWD", shell_state));
+		if (get_env_index("OLDPWD", shell_state) != -1) /*if OLDPWD in environ*/
+			chdir(_getenv("OLDPWD", shell_state));
 		/*now change OLDPWD to the previous dir befor the change*/
 		add_env("OLDPWD", pwd, shell_state);
 		/*update PWD*/
@@ -59,9 +60,8 @@ void execute_cd(char **cmd, shell_state_t *shell_state)
 	}
 	else /* Change to specified directory */
 	{	 /* save current dir backup */
-		pwd = _getenv("PWD", shell_state);
-		/* change the directory*/
-		if (chdir(cmd[1]) == -1)
+		getcwd(pwd, 1024);
+		if (chdir(cmd[1]) == -1) /* change the directory*/
 		{
 			print_shell_error(shell_state);
 			print_error("cd: can't cd to ");

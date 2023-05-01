@@ -11,7 +11,8 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
-#define BUFFER_SIZE 2048
+#define BUFFER_SIZE 1024
+#define LINE_FACTOR 2
 
 extern char **environ;
 
@@ -72,7 +73,7 @@ typedef struct builtin builtin_t;
 /* main program functions */
 void	initialize_shell(shell_state_t *s, int argc, char *argv[]);
 void	prompt_user(shell_state_t *s);
-int		read_line(int fd, char *input);
+int		get_line(char **line, int fd);
 char   *get_input(shell_state_t *s);
 void	ignore_comment(char *input);
 int		has_bad_syntax(char *input, shell_state_t *s);
@@ -115,7 +116,9 @@ void   free_2d_array(char ***arr);
 char  *int_to_string(int num);
 int	   get_array_size(char **array);
 int	   is_whitespace_string(char *str);
-void   trim_lead_trail_spaces(char *str);
+void   strip_lead_trail_whitespace(char *str);
+void   strip_all_whitespace(char *str);
+int	   strip_repeated_whitespace(char *buffer, int buff_len);
 
 /* environment functions */
 char  *_getenv(char *env_name, shell_state_t *s);

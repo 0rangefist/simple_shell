@@ -1,30 +1,6 @@
 #include "shell.h"
 
 /**
- * remove_whitespace - Removes all whitespace from a given string in place,
- * effectively creating a continuous string of chars from index 0
- * @str: Pointer to the string to be trimmed
- */
-void remove_whitespace(char *str)
-{
-	int i; /*index of full original string with whitespaces*/
-	int j; /*index of modified shorter string without whitespaces*/
-
-	/* copy non-whitespace characters to the start of the string */
-	for (i = 0, j = 0; i < _strlen(str); i++)
-	{
-		if (str[i] != ' ' && str[i] != '\t' && str[i] != '\n')
-		{
-			str[j] = str[i];
-			j++;
-		}
-	}
-
-	/* null terminate trimmed string*/
-	str[j] = '\0';
-}
-
-/**
  * count_bad_semicolons - Detects invalid semicolon syntax in a string.
  * @str: The input string to analyze.
  *
@@ -116,7 +92,7 @@ int has_bad_syntax(char *input, shell_state_t *shell_state)
 	input_cpy = _strdup(input);
 
 	/* trim input of all whitespace including inbetween words */
-	remove_whitespace(input_cpy);
+	strip_all_whitespace(input_cpy);
 
 	/* get the count of bad semicolons - either 1 or 2 */
 	/* 1 for single and 2 for multiple bad semicolons */
