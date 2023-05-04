@@ -132,24 +132,21 @@ void logically_sequence_command(char **command, shell_state_t *shell_state)
 	handle_command(left_command, shell_state); /* execute the left command */
 	/* Check logical op to determine if to execute right command */
 	is_OR = (_strcmp(command[logic_op_index], "||") == 0) ? 1 : 0;
-	if (is_OR)
-	{ /* if left command succeeded, dont execute right command */
-		if (shell_state->exit_status == 0) /*last command succeeded*/
-		{
-			free(left_command);
-			free(right_command);
-			return;
-		}
+	if ((is_OR && shell_state->exit_status == 0) /*OR & left cmd succeeded*/
+		|| (!is_OR && shell_state->exit_status != 0)) /*AND & left cmd failed*/
+	{ /* dont execute right command */
+		free(left_command);
+		free(right_command);
+		return;
 	}
-	else /*if it is &&*/
-	{	 /* if left command failed, dont execute right command */
-		if (shell_state->exit_status != 0) /*last command failed */
-		{
-			free(left_command);
-			free(right_command);
-			return;
-		}
-	} /* otherwise we are good to recursively sequence right command*/
+	if (shell_state->is_alive == 0) /*if left cmd was exit */
+	{
+		/* free allocated memory */
+		free(left_command);
+		free(right_command);
+		return; /* progressively return to calling func down to main to exit */
+	}
+	/* otherwise we are good to recursively sequence right command*/
 	logically_sequence_command(right_command, shell_state);
 	/* free allocated memory */
 	free(left_command);

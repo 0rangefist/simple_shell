@@ -16,5 +16,7 @@ void execute_commands(char ***tok_commands, shell_state_t *shell_state)
 	for (i = 0; tok_commands[i] != NULL; i++)
 	{
 		logically_sequence_command(tok_commands[i], shell_state);
+		if (shell_state->is_alive == 0) /*if shell is killed by exit command*/
+			return;/* return to main to exit */
 	}
 }
