@@ -32,6 +32,7 @@ extern char **environ;
  * @environ: the program-wide environment
  * @in_file_mode: boolean to know if input is from file instead of stdin
  * @fildes: file descriptor for reading from a file when in file mode
+ * @aliases: program-wide array of alias strings with format: alias=path
  */
 
 struct shell_state
@@ -46,6 +47,7 @@ struct shell_state
 	char  **environ;
 	int		in_file_mode;
 	int		fildes;
+	char  **aliases;
 };
 
 /**
@@ -95,6 +97,11 @@ void execute_setenv(char **cmd, shell_state_t *s);
 void execute_unsetenv(char **cmd, shell_state_t *s);
 void execute_cd(char **cmd, shell_state_t *s);
 void execute_alias(char **cmd, shell_state_t *s);
+
+/* alias builtin command functions */
+int	  get_alias_equal_sign_index(char *str);
+char *get_alias_value(char *alias, shell_state_t *s);
+void  set_alias(char *alias_and_value, shell_state_t *s);
 
 /* string manipulation functions */
 char *_strdup(const char *str);

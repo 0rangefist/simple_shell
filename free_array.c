@@ -9,6 +9,9 @@ void free_array(char **arr)
 {
 	int i;
 
+	if (arr == NULL) /* null ptr */
+		return;
+
 	for (i = 0; arr[i] != NULL; i++)
 	{
 		free(arr[i]);
@@ -24,6 +27,9 @@ void free_array(char **arr)
 void free_2d_array(char ***arr)
 {
 	int i, j;
+
+	if (arr == NULL) /* null ptr */
+		return;
 
 	for (i = 0; arr[i] != NULL; i++)
 	{

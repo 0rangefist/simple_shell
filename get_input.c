@@ -19,8 +19,8 @@ char *get_input(shell_state_t *shell_state)
 	/* if shell is non-interactive & no more chars to read from stdin */
 	if (!(shell_state->is_interactive) && chars_read == -1)
 		shell_state->is_alive = 0; /* kill the shell */
-	/* read returns non-empty/non-whitespace string */
-	if (input != NULL && chars_read >= 1 && !is_whitespace_string(input))
+	/* read returns non-empty string */
+	if (input != NULL && chars_read >= 1)
 		return (input);
 
 	/* else if input == NULL || chars_read < 1  */

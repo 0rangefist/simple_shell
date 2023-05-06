@@ -51,7 +51,7 @@ int is_a_path(char *command)
  */
 char *get_path_to_command(char *command, shell_state_t *shell_state)
 {
-	char  *path_env_var = NULL, *full_path = NULL, *delim = ":";
+	char  *path_env = NULL, *full_path = NULL, *delim = ":";
 	char **path_arr;
 	int	   index;
 
@@ -63,22 +63,20 @@ char *get_path_to_command(char *command, shell_state_t *shell_state)
 		free(full_path); /* free the allocated memory */
 		return (NULL);	 /* file not found or isn't executable */
 	}
-
-	/* if command is not a path, check for it in PATH env */
-	path_env_var
-		= _strdup(_getenv("PATH", shell_state)); /*search env for PATH*/
-	if (path_env_var == NULL) /* failed to find the PATH env variable */
+	/* if command is not a path, check if it's an alias */
+	full_path = get_alias_value(command, shell_state);
+	if (full_path != NULL) /* command is an alias */
+		return (_strdup(full_path));
+	/* if command is not an alias, check for it in PATH env */
+	path_env = _strdup(_getenv("PATH", shell_state)); /*search env for PATH*/
+	if (path_env == NULL) /* failed to find the PATH env variable */
 		return (NULL);
-
-	path_arr = tokenize(path_env_var, delim); /*tokenize PATH into arr*/
-
-	free(path_env_var);
-
+	path_arr = tokenize(path_env, delim); /*tokenize PATH into arr*/
+	free(path_env);
 	for (index = 0; path_arr[index] != NULL; index++)
 	{
 		/* construct the full path ie. "path/command" */
 		full_path = construct_full_path(path_arr[index], command);
-
 		/* check if the full path exists & is executable */
 		if (access(full_path, X_OK) == 0)
 		{
@@ -89,7 +87,7 @@ char *get_path_to_command(char *command, shell_state_t *shell_state)
 	}
 	/* file not found or isn't executable */
 	free_array(path_arr);
-	return (NULL);
+	return (NULL); /* unrecognised command */
 }
 
 /**

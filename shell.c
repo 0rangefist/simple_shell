@@ -44,6 +44,7 @@ int main(int argc, char *argv[])
 		errno = shell_state.startup_errno; /*reset errno*/
 	}
 	free_array(shell_state.environ);
+	free_array(shell_state.aliases);
 	if (shell_state.in_file_mode) /*close file*/
 		close(shell_state.fildes);
 	return (shell_state.exit_status);
