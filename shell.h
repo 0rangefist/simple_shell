@@ -25,7 +25,7 @@ extern char **environ;
  * @prog_name: the name of the shell executable obtained from argv[0]
  * @input_line_count: number of input lines read by the shell so far
  * @is_alive: boolean to determine if the program should keep running
- * @tokenized_commands: 2d arr of commands tokenized by whitespace
+ * @commands: backup of array of command strings
  * @startup_errno: backup copy of errno at start of the shell program
  * @exit_status: 0 or positive number exit status of the shell program
  * @is_interactive: boolean to determine if shell is interactive terminal
@@ -40,7 +40,7 @@ struct shell_state
 	char   *prog_name;
 	int		input_line_count;
 	int		is_alive;
-	char ***tokenized_commands;
+	char **commands;
 	int		startup_errno;
 	int		exit_status;
 	int		is_interactive;
@@ -81,10 +81,10 @@ void	ignore_comment(char *input);
 int		has_bad_syntax(char *input, shell_state_t *s);
 char  **split_into_commands(char *input);
 char ***tokenize_commands(char **commands);
-void	replace_variables(char ***tok_cmds, shell_state_t *s);
-void	execute_commands(char ***tok_cmds, shell_state_t *s);
-void	logically_sequence_command(char **cmd, shell_state_t *s);
-void	handle_command(char **cmd, shell_state_t *s);
+void	replace_variables(char **cmd_toks, shell_state_t *s);
+void	execute_commands(char **cmd_toks, shell_state_t *s);
+void	logically_sequence_command(char *cmd, shell_state_t *s);
+void	handle_command(char *cmd, shell_state_t *s);
 
 /* external shell command*/
 void execute_command(char **tok_cmd, shell_state_t *s);

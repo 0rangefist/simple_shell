@@ -86,7 +86,7 @@ int get_alias_equal_sign_index(char *str)
 
 	for (i = 0; str[i] != '\0'; i++)
 	{
-		if (str[i] == '=' && i != 0) /* check if char is = */
+		if (str[i] == '=') /* check if char is = */
 			return (i);
 	}
 	return (-1); /* = not found, so not in alias=value format */

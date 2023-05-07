@@ -110,7 +110,7 @@ void mount_image(char *path, char **args, shell_state_t *shell_state)
 	perror("");
 
 	/* clean up resources */
-	free_2d_array(shell_state->tokenized_commands);
+	free_array(shell_state->commands);
 	free(path);
 	path = NULL;
 

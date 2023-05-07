@@ -10,17 +10,17 @@
  */
 void initialize_shell(shell_state_t *shell_state, int argc, char *argv[])
 {
-	shell_state->prog_name			= argv[0];
-	shell_state->input_line_count	= 0;
-	shell_state->is_alive			= 1;
-	shell_state->exit_status		= 0;
-	shell_state->tokenized_commands = NULL;
-	shell_state->startup_errno		= errno;
-	shell_state->is_interactive		= 1;
-	shell_state->environ			= copy_environment(environ);
-	shell_state->in_file_mode		= 0;
-	shell_state->fildes				= 99;
-	shell_state->aliases			= NULL;
+	shell_state->prog_name		  = argv[0];
+	shell_state->input_line_count = 0;
+	shell_state->is_alive		  = 1;
+	shell_state->exit_status	  = 0;
+	shell_state->commands		  = NULL;
+	shell_state->startup_errno	  = errno;
+	shell_state->is_interactive	  = 1;
+	shell_state->environ		  = copy_environment(environ);
+	shell_state->in_file_mode	  = 0;
+	shell_state->fildes			  = 99;
+	shell_state->aliases		  = NULL;
 
 	shell_state->aliases = malloc(sizeof(char *) * 1);
 	if (shell_state->aliases == NULL) /* alloc fail */

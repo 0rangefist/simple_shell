@@ -13,7 +13,6 @@ int main(int argc, char *argv[])
 {
 	char   *input;	  /*unmodified input string entered by user */
 	char  **commands; /*array of commands created using ; as delimiter*/
-	char ***tokenized_commands; /*2d arr of commands tokenized by whitespace*/
 	shell_state_t shell_state = {0}; /*program-wide shell state variables*/
 
 	initialize_shell(&shell_state, argc, argv);
@@ -24,23 +23,23 @@ int main(int argc, char *argv[])
 
 		/* get the user input & save num of chars read */
 		input = get_input(&shell_state);
-		if (input == NULL)	   /* if empty input or error */
-			continue;		   /*restart loop*/
+		if (input == NULL) /* if empty input or error */
+			continue;	   /*restart loop*/
+
 		ignore_comment(input); /* ignore comment (#...) in input */
 		if (has_bad_syntax(input, &shell_state)) /* if input has bad syntax */
 		{
 			free(input);
 			continue; /* restart loop */
 		}
+
 		/* tokenize input into array of commands delimited by ";" */
 		commands = split_into_commands(input);
-		/* further tokenize the commands, delimited by whitespaces */
-		tokenized_commands = tokenize_commands(commands);
-		/* variable replacement */
-		replace_variables(tokenized_commands, &shell_state);
-		/* execute each tokenized_command in the array sequentially */
-		execute_commands(tokenized_commands, &shell_state);
-		free_2d_array(tokenized_commands);
+
+		/* execute each command in the array sequentially */
+		execute_commands(commands, &shell_state);
+
+		free_array(commands);
 		errno = shell_state.startup_errno; /*reset errno*/
 	}
 	free_array(shell_state.environ);

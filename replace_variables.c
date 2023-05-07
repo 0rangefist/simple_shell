@@ -2,24 +2,24 @@
 /**
  * replace_variable - replaces shell variables with their
  * respective values
- * @tok: pointer to a string containing a shell variable
+ * @token: pointer to string possibly containing a shell variable
  * @shell_state: struct of current shell state variables
  */
-void replace_variable(char **tok, shell_state_t *shell_state)
+void replace_variable(char **token, shell_state_t *shell_state)
 {
 	char *env_name	= NULL; /* env var name eg. $PATH, $?, $$, etc */
 	char *env_value = NULL; /* value held by the env var */
 
-	if ((*tok)[0] == '$')
+	if ((*token)[0] == '$')
 	{
-		if ((*tok)[1] == '\0') /*if next char after $ is null byte */
+		if ((*token)[1] == '\0') /*if next char after $ is null byte */
 			return;			   /* don't attempt a replacement */
-		else if ((*tok)[1] == '?')
+		else if ((*token)[1] == '?')
 		{
 			/*save the last exit status returned by a child process */
 			env_value = int_to_string(shell_state->exit_status);
 		}
-		else if ((*tok)[1] == '$')
+		else if ((*token)[1] == '$')
 		{
 			/* save the process ID of the shell program */
 			env_value = int_to_string(getpid());
@@ -27,7 +27,7 @@ void replace_variable(char **tok, shell_state_t *shell_state)
 		else
 		{
 			/* search the environment for the variable */
-			env_name  = *tok + 1;
+			env_name  = *token + 1;
 			env_value = _strdup(_getenv(env_name, shell_state));
 		}
 
@@ -36,33 +36,29 @@ void replace_variable(char **tok, shell_state_t *shell_state)
 		{
 			env_value = _strdup("");
 		}
-		free(*tok);
-		*tok = malloc(_strlen(env_value) + 1);
-		_strncpy(*tok, env_value, _strlen(env_value) + 1);
+		free(*token);
+		*token = malloc(_strlen(env_value) + 1);
+		_strncpy(*token, env_value, _strlen(env_value) + 1);
 		free(env_value);
 	}
 }
 
 /**
- * replace_variables - iterates through the tokenized commands
+ * replace_variables - iterates through the commands array
  * and replaces shell variables with their respective values
- * @tok_commands: pointer to a 2D array of tokenized commands
+ * @command_tokens: tokenized command array
  * @shell_state: struct of current shell state variables
  *
  * Return: No return value
  */
-void replace_variables(char ***tok_commands, shell_state_t *shell_state)
+void replace_variables(char **command_tokens, shell_state_t *shell_state)
 {
-	int i, j;
+	int i;
 
-	/* for each command */
-	for (i = 0; tok_commands[i] != NULL; i++)
+	/* for each token of a command */
+	for (i = 0; command_tokens[i] != NULL; i++)
 	{
-		/* for each token of a command */
-		for (j = 0; tok_commands[i][j] != NULL; j++)
-		{
-			/* Replace the env with its value */
-			replace_variable(&tok_commands[i][j], shell_state);
-		}
+		/* Replace the shell variable with its value */
+		replace_variable(&command_tokens[i], shell_state);
 	}
 }
